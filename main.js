@@ -1,7 +1,10 @@
 import * as THREE from "three";
 
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
+import {
+    CSS2DRenderer,
+    CSS2DObject,
+} from "three/addons/renderers/CSS2DRenderer.js";
 
 // import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 import { AnimationMixer, Color } from "three";
@@ -35,14 +38,43 @@ gltfLoader.load("./public/out_fuente/pcl.gltf", (gltfScene) => {
     scene.add(gltfScene.scene);
 });
 
-const mousePosition = new THREE.Vector2();
+const mouse = new THREE.Vector2();
+const intersectionPoint = new THREE.Vector3();
+const planeNormal = new THREE.Vector3();
+const plane = new THREE.Plane();
+const rayCaster = new THREE.Raycaster();
 
 window.addEventListener("mousemove", (e) => {
-    mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
-    mousePosition.y = (e.clientY / window.innerHeight) * 2 - 1;
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = (e.clientY / window.innerHeight) * 2 - 1;
+    planeNormal.copy(camera.position).normalize();
+    plane.setFromNormalAndCoplanarPoint(
+        planeNormal,
+        new THREE.Vector3(0, 0, 0),
+    );
+    rayCaster.setFromCamera(mouse, camera);
+    rayCaster.ray.intersectPlane(plane, intersectionPoint);
+    // generate an intersection between a plane whose normal is camera.position (perp to screen)
+    // and the point cloud
 });
 
-const rayCaster = new THREE.Raycaster();
+window.addEventListener("click", (e) => {
+    // const sphereGeo = new THREE.SphereGeometry(1, 30, 30);
+    // const sphereMat = new THREE.MeshStandardMaterial({
+    //     color: 0xffea00,
+    //     metalness: 0,
+    //     roughness: 0,
+    // });
+    // const sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
+    // scene.add(sphereMesh);
+    // sphereMesh.position.copy(intersectionPoint);
+    const p = document.createElement("p");
+    p.textContent = "Hello";
+    p.style.color = "black";
+    const cPointlabel = new CSS2DObject(p);
+    scene.add(cPointlabel);
+    cPointlabel.position.copy(intersectionPoint);
+});
 
 init();
 
@@ -79,6 +111,7 @@ function init() {
     labelRenderer.setSize(window.innerWidth, window.innerHeight);
     labelRenderer.domElement.style.position = "absolute";
     labelRenderer.domElement.style.top = "0px";
+    // labelRenderer.domElement.style.pointerEvents = "none";
     document.body.appendChild(labelRenderer.domElement);
 
     const controls = new OrbitControls(camera, labelRenderer.domElement);
@@ -106,14 +139,13 @@ function animate() {
     const elapsed = clock.getElapsedTime();
     moonMesh.position.set(Math.sin(elapsed) * 5, 0, Math.cos(elapsed) * 5);
 
-    rayCaster.setFromCamera(mousePosition, camera);
-    const intersects = rayCaster.intersectObjects(scene.children);
-    intersects.forEach((e) => {
-        if (e.object.id === moonMesh.id) {
-            console.log(e);
-            e.object.material.color.set(0xff0000);
-        }
-    });
+    // const intersects = rayCaster.intersectObjects(scene.children);
+    // intersects.forEach((e) => {
+    //     if (e.object.id === moonMesh.id) {
+    //         console.log(e);
+    //         e.object.material.color.set(0xff0000);
+    //     }
+    // });
 
     renderer.render(scene, camera);
     labelRenderer.render(scene, camera);
@@ -122,23 +154,7 @@ function animate() {
 
 function onWindowResize(camera, labelRenderer, renderer) {
     camera.aspect = window.innerWidth / window.innerHeight;
-
     camera.updateProjectionMatrix();
-
     renderer.setSize(window.innerWidth, window.innerHeight);
-
     labelRenderer.setSize(window.innerWidth, window.innerHeight);
 }
-
-// function initGui() {
-//     gui = new GUI();
-//
-//     gui.title("Camera Layers");
-//
-//     gui.add(layers, "Toggle Name");
-//     gui.add(layers, "Toggle Mass");
-//     gui.add(layers, "Enable All");
-//     gui.add(layers, "Disable All");
-//
-//     gui.open();
-// }
