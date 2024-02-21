@@ -39,8 +39,38 @@
     script.src = 'https://mrdoob.github.io/stats.js/build/stats.min.js';
     document.head.appendChild(script);
 })()</script>
+<div id="canvas"></div>
 
 <script type="module" src="/main.js"></script>
+<!--TODO check if this is correct-->
 
+<script type="x-shader/x-vertex" id="vertexshader">
+
+    attribute float size;
+
+
+                  void main() {
+
+                      vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+                      gl_PointSize = size ;
+                      gl_Position = projectionMatrix * mvPosition;
+
+                  }
+
+</script>
+<script type="x-shader/x-fragment" id="fragmentshader">
+
+    uniform float alpha;
+            uniform vec3 color;
+
+                  void main() {
+              if (alpha == 0.0) {discard;}
+              else {
+                          gl_FragColor = vec4( color, alpha );
+             }
+
+                  }
+
+</script>
 </body>
 </html>
