@@ -10,11 +10,13 @@ const setUpPlanets = (moon, scene) => {
     const earthMaterial = new THREE.MeshPhongMaterial({
         specular: 0x333333,
         shininess: 5,
-        map: textureLoader.load("textures/planets/earth_atmos_2048.jpg"),
+        map: textureLoader.load("./public/textures/Boden_normal.png"),
         specularMap: textureLoader.load(
             "textures/planets/earth_specular_2048.jpg",
         ),
-        normalMap: textureLoader.load("textures/planets/earth_normal_2048.jpg"),
+        normalMap: textureLoader.load(
+            "./public/textures/body_metallicRoughness.png",
+        ),
         normalScale: new THREE.Vector2(0.85, 0.85),
     });
     earthMaterial.map.colorSpace = THREE.SRGBColorSpace;
@@ -24,7 +26,7 @@ const setUpPlanets = (moon, scene) => {
     const moonGeometry = new THREE.SphereGeometry(MOON_RADIUS, 16, 16);
     const moonMaterial = new THREE.MeshPhongMaterial({
         shininess: 5,
-        map: textureLoader.load("textures/planets/moon_1024.jpg"),
+        map: textureLoader.load("./public/textures/material_normal.png"),
     });
     moonMaterial.map.colorSpace = THREE.SRGBColorSpace;
     moon = new THREE.Mesh(moonGeometry, moonMaterial);

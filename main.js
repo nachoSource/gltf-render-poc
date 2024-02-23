@@ -12,22 +12,6 @@ import setUpPlanets from "./setUpPlanets";
 
 let camera, scene, renderer, labelRenderer;
 
-// const layers = {
-//     "Toggle Name": function () {
-//         camera.layers.toggle(0);
-//     },
-//     "Toggle Mass": function () {
-//         camera.layers.toggle(1);
-//     },
-//     "Enable All": function () {
-//         camera.layers.enableAll();
-//     },
-//
-//     "Disable All": function () {
-//         camera.layers.disableAll();
-//     },
-// };
-
 const clock = new THREE.Clock();
 
 let moon;
@@ -38,7 +22,7 @@ document.body.appendChild(stats.dom);
 
 let loadedModel;
 const gltfLoader = new GLTFLoader();
-gltfLoader.load("./public/model.gltf", (gltfScene) => {
+gltfLoader.load("./public/out_fuente/pcl.gltf", (gltfScene) => {
     loadedModel = gltfScene;
     console.log("loadedModel", gltfScene);
 
@@ -50,6 +34,15 @@ gltfLoader.load("./public/model.gltf", (gltfScene) => {
     loadedModel.mixer = mixer;
     scene.add(gltfScene.scene);
 });
+
+const mousePosition = new THREE.Vector2();
+
+window.addEventListener("mousemove", (e) => {
+    mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mousePosition.y = (e.clientY / window.innerHeight) * 2 - 1;
+});
+
+const rayCaster = new THREE.Raycaster();
 
 init();
 
@@ -112,6 +105,15 @@ function animate() {
 
     const elapsed = clock.getElapsedTime();
     moonMesh.position.set(Math.sin(elapsed) * 5, 0, Math.cos(elapsed) * 5);
+
+    rayCaster.setFromCamera(mousePosition, camera);
+    const intersects = rayCaster.intersectObjects(scene.children);
+    intersects.forEach((e) => {
+        if (e.object.id === moonMesh.id) {
+            console.log(e);
+            e.object.material.color.set(0xff0000);
+        }
+    });
 
     renderer.render(scene, camera);
     labelRenderer.render(scene, camera);
